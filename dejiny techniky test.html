@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dejiny Techniky - Mobile + Dark Mode</title>
+<style>
+    :root {
+        /* SVETLÁ TÉMA (Default) */
+        --primary: #007bff;
+        --success: #28a745;
+        --danger: #dc3545;
+        --bg: #f0f2f5;
+        --card-bg: #ffffff;
+        --text-main: #333333;
+        --text-sec: #666666;
+        --border: #e9ecef;
+        --btn-bg: #fff;
+        --header-bg: #ffffff;
+        --shadow: rgba(0,0,0,0.05);
+    }
+
+    /* TMAVÁ TÉMA (Override) */
+    body.dark-mode {
+        --bg: #18191a;
+        --card-bg: #242526;
+        --text-main: #e4e6eb;
+        --text-sec: #b0b3b8;
+        --border: #3a3b3c;
+        --btn-bg: #242526;
+        --header-bg: #242526;
+        --shadow: rgba(0,0,0,0.3);
+    }
+
+    body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        margin: 0; 
+        padding: 15px; 
+        background-color: var(--bg); 
+        color: var(--text-main); 
+        padding-bottom: 50px;
+        transition: background-color 0.3s, color 0.3s; /* Plynulá zmena */
+    }
+    
+    header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 20px; 
+        padding: 10px 15px;
+        background: var(--header-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 5px var(--shadow);
+        transition: background-color 0.3s;
+    }
+
+    .header-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    h1 { margin: 0; font-size: 1.1rem; color: var(--text-main); font-weight: 800; }
+    
+    .nav-btn { 
+        padding: 8px 12px; 
+        background: var(--bg); 
+        color: var(--text-main); 
+        border: 1px solid var(--border); 
+        border-radius: 8px; 
+        cursor: pointer; 
+        font-weight: 600;
+        font-size: 0.9rem; 
+        transition: 0.2s;
+    }
+
+    .nav-btn:active { transform: scale(0.95); }
+
+    .view { display: none; animation: fadeIn 0.3s; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Menu Grid */
+    .menu-grid { display: grid; gap: 15px; grid-template-columns: 1fr; }
+    
+    .menu-card { 
+        background: var(--card-bg); 
+        padding: 20px; 
+        border-radius: 16px; 
+        box-shadow: 0 2px 8px var(--shadow); 
+        text-align: center; 
+        cursor: pointer; 
+        border: 1px solid var(--border);
+        transition: transform 0.1s, background-color 0.3s;
+    }
+    
+    .menu-card:active { transform: scale(0.98); }
+    .menu-card h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1.3rem; }
+    .menu-card p { margin: 0; color: var(--text-sec); font-size: 0.95rem; }
+
+    /* Quiz Styling */
+    .question-card { 
+        background: var(--card-bg); 
+        padding: 20px; 
+        border-radius: 16px; 
+        box-shadow: 0 2px 10px var(--shadow); 
+        transition: background-color 0.3s;
+    }
+    .question-text { font-weight: 700; font-size: 1.1em; margin-bottom: 20px; line-height: 1.4; color: var(--text-main); }
+    
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    
+    .opt-btn { 
+        padding: 16px; 
+        border: 2px solid var(--border); 
+        background: var(--btn-bg); 
+        cursor: pointer; 
+        text-align: left; 
+        border-radius: 12px; 
+        font-size: 1rem; 
+        line-height: 1.4; 
+        color: var(--text-main);
+        -webkit-tap-highlight-color: transparent;
+        transition: 0.2s;
+    }
+    
+    .opt-btn:active { opacity: 0.8; }
+    .opt-btn.correct { background-color: rgba(40, 167, 69, 0.2); border-color: var(--success); color: var(--success); font-weight: 700; }
+    .opt-btn.wrong { background-color: rgba(220, 53, 69, 0.2); border-color: var(--danger); color: var(--danger); }
+    
+    /* Dark mode text corrections for buttons */
+    body.dark-mode .opt-btn.correct { color: #4cd16f; }
+    body.dark-mode .opt-btn.wrong { color: #ff6b6b; }
+
+    .status-bar { 
+        display: flex; 
+        justify-content: space-between; 
+        color: var(--text-sec); 
+        margin-bottom: 15px; 
+        font-size: 0.9rem; 
+        font-weight: 500;
+        background: var(--header-bg);
+        padding: 10px 15px;
+        border-radius: 50px;
+        box-shadow: 0 2px 5px var(--shadow);
+    }
+    
+    /* Study List */
+    .study-list { background: var(--card-bg); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+    .study-item { padding: 20px; border-bottom: 1px solid var(--border); }
+    .study-q { font-weight: bold; margin-bottom: 8px; color: var(--text-main); font-size: 1rem; }
+    .study-a { color: var(--success); font-weight: 700; background: rgba(40, 167, 69, 0.1); display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.95rem; }
+    body.dark-mode .study-a { background: rgba(40, 167, 69, 0.2); color: #4cd16f; }
+    
+    .search-box { 
+        width: 100%; 
+        padding: 15px; 
+        margin-bottom: 15px; 
+        border: 1px solid var(--border); 
+        background: var(--card-bg);
+        color: var(--text-main);
+        border-radius: 12px; 
+        box-shadow: 0 2px 10px var(--shadow);
+        font-size: 1rem; 
+        box-sizing: border-box;
+    }
+
+    /* Result Area */
+    .result-area { text-align: center; padding: 40px 20px; background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); }
+    .big-score { font-size: 4rem; font-weight: 800; color: var(--primary); margin: 20px 0; }
+
+    @media (min-width: 600px) {
+        .menu-grid { grid-template-columns: repeat(3, 1fr); }
+        body { padding: 40px; max-width: 900px; margin: 0 auto; }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>🎓 Dejiny Techniky</h1>
+    <div class="header-buttons">
+        <button class="nav-btn" id="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <button class="nav-btn" onclick="showMenu()">Menu</button>
+    </div>
+</header>
+
+<div id="menu-view" class="view active">
+    <div class="menu-grid">
+        <div class="menu-card" onclick="startQuiz('sequential')">
+            <h3>📝 Zaradom</h3>
+            <p>1 → 73</p>
+        </div>
+        <div class="menu-card" onclick="startQuiz('random')">
+            <h3>🔀 Náhodne</h3>
+            <p>Mix otázok</p>
+        </div>
+        <div class="menu-card" onclick="showStudyList()">
+            <h3>📖 Zoznam</h3>
+            <p>Všetky odpovede</p>
+        </div>
+    </div>
+</div>
+
+<div id="quiz-view" class="view">
+    <div class="status-bar">
+        <span>Otázka: <b id="q-current">1</b>/<span id="q-total">73</span></span>
+        <span>Skóre: <b id="score-display">0</b></span>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<div id="result-view" class="view">
+    <div class="result-area">
+        <h2>Hotovo! 🎉</h2>
+        <p>Tvoje skóre:</p>
+        <div class="big-score"><span id="final-score">0</span>/<span id="final-total">0</span></div>
+        <button class="nav-btn" style="background: var(--primary); color: white; border: none; padding: 15px 30px; font-size: 1.1rem;" onclick="showMenu()">Nové kolo</button>
+    </div>
+</div>
+
+<div id="list-view" class="view">
+    <input type="text" id="search" class="search-box" placeholder="🔍 Hľadať otázku..." onkeyup="filterList()">
+    <div id="study-content" class="study-list"></div>
+</div>
+
+<script>
+// --- FULL DATABASE ---
+const originalDb = [
+["1. Prvá vysoká škola technického typu, založená dekrétom Márie Terézie 13. decembra 1762, mala názov.....", ["Academia Istropolitana", "Trnavská univerzita", "Banícka akadémia v B. Š."], 2],
+["2. V roku 1782 pôsobil na Baníckej akadémii v B. Š. významný fyzik a elektrotechnik", ["A. Volta", "L. Galvani", "Š. A. Jedlík"], 0],
+["3. Na Baníckej a lesníckej akadémii v Banskej Štiavnici bol v roku 1881 vyvinutý profesormi Schenekom a Farbakkym", ["nový typ oloveného elektrického akumulátora", "prvý bleskozvod na Slovensku", "rheometer - v podstate dnešný ampérmeter"], 0],
+["4. Prvé zariadenie v histórii, ktoré malo povahu jednosmerného elektromotora, skonštruoval v roku 1829", ["Š. A. Jedlík", "M. Faraday", "W. Siemens"], 0],
+["5. Prvú slovenskú učebnicu fyziky napísal v roku 1869 na gymnáziu v Revúcej", ["G. Boleman", "I. B. Zoch", "Ján Fuchs (Faludi)"], 1],
+["6. Autorom prvej vysokoškolskej učebnice elektrotechniky na území Slovenska vydanej v roku 1919 bol", ["O. Schwartz", "G. Boleman", "O. Bošáni"], 0],
+["7. Jedným z významných svetových fyzikov, pôsobiacich na Baníckej a lesníckej akadémii v Banskej Štiavnici v rokoch 1848-49 bol", ["H. Hertz", "Ch. Doppler", "J. Murgaš"], 1],
+["8. Prvé mesto na Slovensku, ktoré bolo v roku 1889 elektricky osvetlené, bolo", ["Bratislava", "Gelnica", "Krompachy"], 2],
+["9. Systém umelých jazier, tzv. tajchov, voda z ktorých sa v prvej polovici 18. storočia používala na pohon banských zariadení v okolí B. Štiavnice, projektoval a ich výstavbu viedol", ["J. K. Hell", "M. Bel", "S. Mikovíni"], 2],
+["10. Tzv. vodostĺpcový banský čerpací stroj, ktorý sa zapísal do dejín svetovej techniky, zostrojil v roku 1749 v šachte Leopold v Štiavnických Baniach", ["M. Bel", "J. K. Hell", "S. Mikovíni"], 1],
+["11. Vysoká škola technická Dr. M. R. Štefánika, ktorej pokračovateľkou bola po dvoch rokoch od jej vzniku Slovenská vysoká škola technická, vznikla", ["zákonom Nár. zhromaždenia ČSR z 25. 6. 1937 v Košiciach", "zákonom Nár. zhromaždenia ČSR z 25. 6. 1937 v Martine", "zákonom slovenského snemu z 25. 7. 1939 v Bratislave"], 0],
+["12. Elektrotechnická fakulta SVŠT v Bratislave vznikla rozčlenením Fakulty strojníckeho a elektrotechnického inžinierstva SVŠT", ["zákonom o vysokých školách č. 58 z roku 1950", "nariadením slovenskej vlády č. 160/1940", "vládnym nariadením č. 80 z 2. 10. 1951"], 2],
+["13. Prvým dekanom EF SVŠT v Bratislave bol", ["Ľ. Kneppo", "J. Hronec", "A. Rozsypal"], 0],
+["14. Vynálezca vývevy O. Guericke sa do histórie elektrotechniky zapísal v roku 1660", ["objavom kompasu", "konštrukciou rotačného generátora trecej elektriny", "objavom javu elektrostatickej indukcie na povrchu vodičov"], 1],
+["15. Stephen Gray v roku 1729", ["objavil jav elektromagnetickej indukcie", "zistil, že látky sa delia na vodiče a nevodiče", "zistil, že v permanentnom magnete nikdy nemožno od seba oddeliť severný a južný pól"], 1],
+["16. C. F. Du Fay v roku 1733 zistil, že existujú dva druhy elektrického náboja (elektrického fluida), ktoré možno od seba oddeliť. Prišiel na to tak, že zistil, že", ["dve nabité kovové látky sa vždy odpudzujú", "rôzne typy nevodičov, napr. sklo a jantár, sa po zelektrizovaní vždy priťahujú, kým dva rovnaké nevodiče sa po zelektrizovaní odpudzujú", "nabitý nekovový predmetom priťahovaný"], 1],
+["17. Objav tzv. leydenskej fľaše v roku 1745, t. j. zariadenia, ktoré umožňuje uskladniť kladný a záporný náboj a bolo mnoho rokov používané ako zdroj elektrického napätia, sa pripisuje", ["E. J. G. von Kleistovi a P. van Musschenbroekovi", "B. Franklinovi", "C. A. Coulombovi"], 0],
+["18. B. Franklin v roku 1747 pri pokusoch s (neuzemneným) bleskozvodom potvrdil hypotézu, že iskrenie vznikajúce pri používaní statickej elektriny a blesk, t. j. výboj vznikajúci pri búrke sú javy tej istej povahy, pretože oboma spôsobmi takto získaný náboj privedený na leydenskú fľašu zapaľuje lieh. Zároveň zistil, že", ["magnetka sa počas el. výboja vychýli a po skončení výboja sa vráti do pôvodnej polohy", "elektrický výboj nikdy nemá vplyv na polohu magnetky", "ak elektrický výboj prejde železným kľúčom, zostane zmagnetizovaný"], 2],
+["19. Doskový kondenzátor skonštruoval ako prvý", ["C. Coulomb", "B. Franklin", "H. Cavendish"], 1],
+["20. Tzv. \"utajený\" experimentátor Angličan H. Cavendish (1731-1810) svojimi pokusmi zistil, že", ["na povrchu nabitej vodivej gule sa náboj rozloží rovnomerne", "dva rovnobežné vodiče prúdu sa priťahujú", "sila medzi dvoma nábojmi je priamo úmerná ich veľkosti a nepriamo úmerná ich vzdialenosti umocnenej na (2+ε)"], 2],
+["21. Charles Augustin Coulomb svojimi pokusmi v rokoch 1785-1789 objavil zákon vyjadrujúci odpudivú silu medzi dvoma malými nepohybujúcimi sa nábojmi a tiež zistil, že táto sila je nepriamo úmerná druhej mocnine vzdialenosti nábojov. Pritom používal", ["doskový kondenzátor s meniacou sa vzdialenosťou nabitých dosiek a silu meral pomocou závaží", "torzné kyvadlo, pričom silu určoval z doby kmitu kyvadla", "sústavu dvoch matematických kyvadiel, ktoré si vzájomne ovplyvňovali dobu kmitu"], 1],
+["22. C. A. Coulomb experimentálne zistil, že", ["elektrický náboj sa na povrchu vodivej gule rozloží rovnomerne", "elektrický prúd pôsobí na magnetku", "vo vnútri vodivej dutej gule je elektrické pole nulové"], 0],
+["23. C. A. Coulomb zistil, že podobný zákon, aký platí pre silu medzi 2 nábojmi, platí i pre póly magnetov a videl v tom všeobecnú analógiu tzv. síl pôsobiacich na diaľku s vtedy už viac než 100 rokov známym gravitačným zákonom. Táto analógia", ["je v súlade aj s dnešnými poznatkami", "sa nemôže použiť, ak sa napríklad náboje navzájom pohybujú", "je platná len pre gravitačné a magnetické sily"], 1],
+["24. Magnetické účinky jednosmerného elektrického prúdu (odchyľovanie magnetky v blízkosti vodiča prúdu) v roku 1820 objavil", ["A. M. Ampére", "M. Faraday", "H. CH. Oersted"], 2],
+["25. V roku 1791 publikoval svoje pozorovania zamerané na kontrakciu preparovaných žabích stehienok pri ich kontakte s dvoma rôznymi kovmi taliansky vedec", ["E. Fermi", "L. Galvani", "A. Volta"], 1],
+["26. V roku 1793 bolo zistené, že sústava zinkovej a medenej elektródy umiestnená do nádoby so slanou vodou je zdrojom trvalého elektrického prúdu. Tento objav elektrochemického článku urobil", ["L. Galvani", "A. Volta", "M. Faraday"], 1],
+["27. Ako zdroj elektrického prúdu bola v roku 1823 objavená sústava dvoch rôznych drôtených vodičov, ktorých stykové body mali rôznu teplotu (termočlánok). Tento jav objavil", ["A. Volta", "J. C. Peltier", "T. J. Seebeck"], 2],
+["28. Zobrazovanie magnetického poľa v okolí magnetu pomocou železných pilín ako prvý zaviedol", ["M. Faraday", "T. J. Seebeck", "H. CH. Oersted"], 0],
+["29. V roku 1831 objavil M. Faraday zákon elektromagnetickej indukcie. Pritom zistil, že", ["indukované napätie vzniká iba v nepohybujúcej sa uzavretej slučke, ak sa v jej okolí mení magnetický tok", "indukované napätie vzniká nielen v uzavretej nepohyblivej vodivej slučke pri časovej zmene magnetického toku, ale aj v otvorenom vodiči, ktorý sa pohybuje translačným pohybom v stálom magnetickom poli", "indukované napätie nikdy nevzniká, ak sa trvalý magnet pohybuje v okolí cievky"], 1],
+["30. Objaviteľom elektromagnetu a indukčnosti cievky bol", ["M. Faraday", "J. C. Maxwell", "J. H. Henry"], 2],
+["31. Zákon platný pre silu pôsobiacu medzi dvoma vodičmi prúdu, resp. pre silu pôsobiacu na vodič prúdu v magnetickom poli na základe experimentov odvodil v roku 1820", ["J. C. Maxwell", "M. Faraday", "A. M. Ampére"], 2],
+["32. Možnosť vzájomnej náhrady cievky s prúdom a magnetu objavil", ["A. M. Ampére", "J. B. Biot a F. Savart", "M. Faraday"], 0],
+["33. M. Faraday bol autorom myšlienky o existencii elektromagnetického poľa, ktoré sprostredkuje silové pôsobenie medzi objektami. CH. Wheatstone následne experimentálne dokázal, že", ["elektromagnetické pole sa šíri nekonečne rýchlo", "elektromagnetické pole má nekonečný dosah", "elektromagnetické pole sa vo vodivých vedeniach šíri konečnou rýchlosťou"], 2],
+["34. V roku 1841 J. P. Joule vyslovil hypotézu, že teplo vznikajúce vo vodiči prúdu je dôsledkom zrážky elektrického fluida s časticami vodiča. Ním odvodený vzťah pre tzv. Jouleovo teplo Q = RI² experimentálne potvrdil v roku 1845", ["E. Lenz", "W. E. Weber", "J. C. Maxwell"], 0],
+["35. G. Ohm v rokoch 1825-26 objavil vzťah medzi napätím a prúdom v rezistore, tzv. Ohmov zákon. Aj keď používal v pokusoch na meranie prúdu precízny torzný ampérmeter, mal problémy so stálosťou napätia zdroja. Tento problém vyriešil tým, že", ["začal používať namiesto leydenskej fľaše Voltov stĺp", "ako zdroj napätia použil termočlánok, ktorého referenčné body mali zaručenú stálu teplotu", "ako zdroj napätia použil kombináciu leydenskej fľaše a Voltovho stĺpa"], 1],
+["36. Na znázornenie elektromagnetického poľa zaviedol M. Faraday pojem siločiar. Jeho cieľom bolo dokázať, že možno magnetizmus premeniť na elektrinu. To geniálne teoreticky opísal v roku 1864 J. C. Maxwell tým, že", ["vytvoril sústavu rovníc, v ktorých umelo pridal člen, podľa ktorého časová zmena elektrického poľa vyvoláva vo voľnom priestore magnetické pole podobne, ako toto pole vyvoláva aj vodič prúdu", "zdôvodnil, že vo vodivej slučke vznikne indukované napätie, len ak sa otáča okolo pevnej osi v magnetickom poli", "ukázal, že medzi kontaktmi cievky, v ktorej tečie prúd, sa po jeho vypnutí objaví iskrenie"], 0],
+["37. Jedným z kľúčových záverov Maxwellovej teórie bolo, že", ["kým magnetické indukčné čiary sú uzavreté, elektrické siločiary sú otvorené a spájajú kladný a záporný náboj", "magnetické pole cievky a magnetu sú vzájomne nahraditeľné", "elektromagnetické pole sa môže šíriť v podobe vlnenia s rýchlosťou zhodnou s rýchlosťou svetla"], 2],
+["38. Experimentálne potvrdenie existencie elektromagnetického vlnenia vykonali", ["W. Thomson a O. Heaviside preukázaním jeho existencie v telegrafnej dvojlinke", "V roku 1888 H. Hertz vo voľnom priestore a O. Lodge vo vedení tým, že sa rozruch z iskrišťa preniesol na iné miesta", "A. S. Popov a P. N. Lebedev v roku 1899 objavom svetelného tlaku"], 1],
+["39. O. Heaviside navrhol znížiť útlm v telegrafnom vedení", ["zvýšením kapacitnej väzby medzi vodičmi vedenia", "zaraďovaním relé, ktoré zosilňovali prenášaný signál", "sériovým zapojením indukčností vhodnej veľkosti"], 2],
+["40. Oscilačné vlastnosti L-C obvodu (paralelného zapojenia cievky a kondenzátora) a dobu kmitu v tomto obvode ako prvý opísal", ["CH. Wheatstone v roku 1843", "W. Thomson v roku 1853", "H. Hertz v roku 1887"], 1],
+["41. Dva možné princípy elektrickej žiarovky (elektrický oblúk a rozžeravené vlákno) navrhol ako prvý", ["v roku 1804 H. Davy", "v roku 1820 G. de la Rue", "v roku 1845 J. W. Starr"], 0],
+["42. Prvú skutočnú žiarovku so svietiacim vláknom skonštruoval", ["v roku 1880 J. W. Swan", "v roku 1873 A. N. Lodygin", "v roku 1840 W. R. Grove"], 2],
+["43. Žiarovku s dlhšou dobou životnosti s vláknom zo zuhoľnatelej bavlny umiestneným vo vákuu vytvoril v roku 1879", ["P. N. Jabločkov", "T. A. Edison", "W. D. Coolidge"], 1],
+["44. Vákuovú priamo žeravenú diódu skonštruoval ako prvý v roku 1900", ["T. A. Edison", "J. A. Fleming", "L. de Forest"], 1],
+["45. Diferenciálny regulátor vzdialenosti uhlíkových elektród v oblúkovej lampe zostrojil ako prvý v roku 1880", ["P. N. Jabločkov", "J. Foucault", "F. Křižík"], 2],
+["46. V roku 1832 Hypolit Pixii v Paríži zostrojil generátor striedavého prúdu s otáčavým magnetom a dvoma pevnými cievkami. O dva roky ho podstatne zdokonalil použitím 6 cievok a 3 magnetov Emil Stöhrer v Lipsku. Generátor sa používal ako", ["zdroj striedavého napätia", "ako zdroj pulzujúceho jednosmerného napätia, pretože bol doplnený selénovým usmerňovačom", "ako dynamo - jeho súčasťou bol mechanický usmerňovač - komutátor"], 2],
+["47. Elektrický stroj, v ktorom sa stator z magnetu nahradil elektromagnetom a rotor pozostával z cievky navinutej na magnete napájanej z externého zdroja (stroj s cudzím budením), čím sa dali regulovať otáčky elektromotora, resp. výstupné indukované napätie generátora, navrhol v roku 1867", ["N. Tesla", "Š. A. Jedlík", "W. Siemens"], 2],
+["48. Prvé dynamo s vlastným budením, používajúce tzv. dynamoelektrický princíp (stroj s vlastným budením), v ktorom sa využíva remanentný magnetizmus rotora (kotvy), zostrojil v roku 1858", ["Š. A. Jedlík", "W. Siemens", "N. Tesla."], 0],
+["49. N. Tesla hľadal možnosti, ako v jednosmerných elektromotoroch odstrániť iskrenie na kefkách komutátora. Výsledkom jeho úsilia bolo, že", ["v roku 1887 skonštruoval prvý indukčný (asynchrónny) motor s otáčavým krútiacim momentom, napájaný striedavým prúdom, v ktorom vinutie rotora nepotrebovalo vonkajší zdroj", "upravil vinutie statora jednosmerného motora tak, aby vznikalo otáčavé magnetické pole a nebolo potrebné používať komutátor", "namiesto komutátora použil selénový usmerňovač"], 0],
+["50. Aj pod vplyvom objavu striedavého asynchrónneho elektrického stroja sa v praxi presadila myšlienka striedavej rozvodnej sústavy oproti dovtedy používanej jednosmernej rozvodnej sústave. Jej najvýznamnejším presadzovateľom bol", ["T. A. Edison, ktorého podporoval aj významný fyzik W. Thomson", "N. Tesla, ktorý získal už v roku 1887 v USA patent za prvý striedavý rozvod", "Marcel Deprez, ktorý v roku 1882 uskutočnil diaľkový prenos elektrického prúdu z Miesbachu do Mníchova"], 1],
+["51. V Európe sa prvý významný prenos elektrickej energie trojfázovou sústavou na vzdialenosť 170 km uskutočnil v roku 1891. Jeho pôvodcom bol", ["prvý konštruktér trojfázového generátora M. O. Dolivo-Dobrovoľskij", "W. Siemens, zakladateľ elektrotechniky v Nemecku", "F. Křižík, ktorý predtým v roku 1888 postavil v Prahe elektráreň"], 0],
+["52. V roku 1809 sa objavil telegraf fungujúci už na princípe prenosu elektrických signálov drôtovým vedením. Signál sa prenášal zo spínačov vysielača vodičmi, z ktorých každý bol určený pre jeden z 26 znakov (písmen). Prijímač pozostával z 26 elektród ponorených do okyslenej vody. Pri prijatí signálu sa okolo príslušnej elektródy objavili bublinky. Tento tzv. elektrolytický telegraf vytvoril", ["H. Davy", "S. T. Sömmering", "Gauss a Weber"], 1],
+["53. V rôznych ihlových a ručičkových telegrafoch (1832-1847), v ktorých sa v prijímači v rôznych kombináciách pod vplyvom magnetického poľa prúdu vychyľovali magnetické strelky, vznikal problém slabnúceho signálu pri dlhších vedeniach. Ako zosilňovač signálu použil ortuťové relé v roku 1837", ["A. M. Ampére", "P. L. Schilling", "Ch. Wheatstone"], 2],
+["54. Nevýhodou ručičkových telegrafov bola nevyhnutná prítomnosť obsluhy pri prijímaní signálov. V roku 1844 však bol prvý raz odskúšaný zapisovací telegraf, ktorý na kódovanie písmen a číslic používal dohodnuté kombinácie čiarok a bodiek. Jeho autorom bol", ["Ch. Wheatstone", "W. Siemens", "S. Morse."], 2],
+["55. Prvé naozaj úspešné položenie podmorského telegrafného kábla medzi Anglickom a Amerikou v roku 1866 bolo umožnené tým, že bol použitý stroj na ukladanie káblov a špeciálne vyrobený sedempramenný kábel s desiatimi nosnými drôtmi a s tesniacou látkou – gutaperčou. Jeho autorom bol", ["W. Thomson", "O. Heaviside", "W. Siemens"], 2],
+["56. Prvé zariadenie na drôtový prenos hovoreného slova, ktoré vynálezca nazval telefónom, sa objavilo v roku 1860. Tento vynálezca sa volal", ["A. G. Bell", "J. P. Reis", "E. Gray"], 1],
+["57. Prvý pokus so zachytením signálu prostredníctvom elektromagnetického poľa šíriaceho sa vo voľnom priestore vznikajúceho pri bleskoch uskutočnil v roku 1895", ["A. S. Popov", "G. Marconi", "N. Tesla"], 0],
+["58. Prvý bezdrôtový prenos telegrafného signálu cez Atlantický oceánu z Anglicka do Kanady uskutočnil v roku 1901", ["N. Tesla", "G. Marconi", "J. Murgaš"], 1],
+["59. Prvé rozhlasové vysielanie sa uskutočnilo v roku 1920 v Pittsburghu a na Slovensku v Bratislave v roku 1924. Bolo umožnené využívaním zosilňovačov na báze vákuových elektróniek, pričom na prenos hovoreného slova sa používali netlmené oscilácie v podobe amplitúdovej modulácie. Amplitúdovú moduláciu vynášiel v roku 1906", ["T. A. Edison", "R. Fessenden", "Lee de Forest"], 1],
+["60. Najznámejším patentom Slováka Jozefa Murgaša v USA z roku 1904 bolo použitie tzv. tónového systému, čiže prenášanie rádiotelegrafických značiek pomocou dvoch rozdielnych frekvencií. Jeho najvýznamnejším objavom však bolo", ["uskutočnenie prvého bezdrôtového prenosu ľudského hlasu v roku 1905", "vynález antény pre bezdrôtovú telegrafiu", "prístroj na výrobu elektrických oscilácií"], 0],
+["61. Počítače nultej generácie, pracujúce vo dvojkovej sústave, ako boli napríklad Z1 až Z4 (1936-1943, autor K. Zuse) alebo Mark 1 (1943, autori H. Aikin a G. Hopper) používali", ["polovodičové diódy", "klopné obvody s triódami", "relé"], 2],
+["62. Prvý skutočne univerzálny elektronický počítač prvej generácie používajúci relé, kryštálové diódy a vákuové elektrónky, bol", ["Colossus z roku 1943", "Eniac z roku 1946", "IBM 701 z roku 1952"], 1],
+["63. Plošný tranzistor bol objavený v roku 1947 a stal sa základom počítačov druhej generácie. Prvý takýto počítač, používajúci už aj tranzistory, bol", ["EDVAC z roku 1951", "IBM 701 z roku 1952", "IBM 652 z roku 1953"], 0],
+["64. Snaha ovplyvňovať veľký prúd pomocou malých zmien napätia vyvrcholila v roku 1906 objavom triódy. Materiálová štruktúra s podobnými vlastnosťami sa nazýva tranzistor. Prvý tranzistor navrhli", ["Bardeen, Brattain a Shockley v roku 1947 (hrotový tranzistor)", "J. E. Lilienfeld, ktorý v roku 1926 podal patent v Kanade (tzv. FET tranzistor)", "Russel Ohl, ktorý už v roku 1940 objavil usmerňovacie vlastnosti P-N polovodičového prechodu a v roku 1946 vytvoril plošný tranzistor"], 1],
+["65. Jadrový reaktor sa prvý raz použil na výrobu elektrickej energie", ["v roku 1951 pri meste Arco v USA", "v meste Oak Ridge v USA v roku 1946", "v Obninsku (ZSSR) v roku 1954"], 0],
+["66. Prvý ťažkovodný reaktor A1 v Jaslovských Bohuniciach bol spustený do prevádzky", ["v roku 1958", "v roku 1974", "v roku 1977"], 1],
+["67. Tzv. \"uránové lúče\", v skutočnosti beta častice, ktoré sa stali v roku 1896 prvým pozorovaným prejavom rádioaktivity,", ["ako prví pozorovali P. a M. Curie", "ako prvý pozoroval E. Rutherford", "ako prvý pozoroval A. H. Becquerel"], 2],
+["68. Ostreľovaním tenkej zlatej fólie časticami alfa v rokoch 1908-1909 sa ukázalo, že veľmi malá časť týchto častíc sa rozptyľuje aj v spätnom smere. V roku 1911 bola publikovaná práca, v ktorej sa preukázalo, že tento jav vzniká pri zrážke alfa častice iba s jediným atómom zlata, v strede ktorého je sústredená prakticky celá hmotnosť atómu a je nabitá kladným nábojom. Táto časť atómu dostala názov atómové jadro. Za jeho objaviteľa sa považuje", ["J. Chadwick", "M. Curie", "E. Rutherford"], 2],
+["69. Prvú riadenú reťazovú reakciu uskutočnil", ["v roku 1939 O. Hahn a F. Strassmann", "v roku 1942 E. Fermi", "v roku 1945 J. R. Oppenheimer"], 1],
+["70. Koncom 18. storočia sa objavil nový zdroj elektrického napätia, ktorý postupne nahradil leidenskú fľašu a prispel tak k využívaniu jednosmerného prúdu na rôzne účely. Objaviteľom elektrochemického článku bol", ["Luigi Galvani", "Hans Ch. Oersted", "Prokop Diviš", "Stephen Gray"], 0],
+["71. Snaha vedcov o preukázanie možnosti prenosu energie a hybnosti elektromagnetickým poľom viedli na rôzne teórie, ktoré však čakali koncom 19. storočia na svoje experimentálne potvrdenie. To sa ako prvému podarilo ruskému fyzikovi P. N. Lebedevovi v roku 1899. Aký objav v tomto roku Lebedev urobil?", ["objav fotónu", "prenos modulovaného signálu", "overil maximálnu rýchlosť svetla", "objavil svetelný tlak"], 3],
+["72. V ktorom roku dokončil J. C. Maxwell svoju prevratnú vedeckú prácu s názvom Dynamická teória elektromagnetického poľa?", ["1864", "1794", "1846", "1820"], 0],
+["73. Prvou objavenou elementárnou časticou bol elektrón ešte v čase, keď štruktúra atómu nebola známa. Bol objavený v roku 1897. Ako sa volal jeho objaviteľ?", ["A. Einstein", "E. Rutherford", "J. Thomson,", "N. Bohr"], 2]
+];
+
+// --- APP STATE ---
+let activeQuizData = [];
+let currentQIndex = 0;
+let score = 0;
+
+// --- UTILS ---
+function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function switchView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+// --- THEME LOGIC ---
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById('theme-toggle');
+    body.classList.toggle('dark-mode');
+    
+    if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        btn.innerText = '☀️';
+    } else {
+        localStorage.setItem('theme', 'light');
+        btn.innerText = '🌙';
+    }
+}
+
+// Check saved theme on load
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('theme-toggle').innerText = '☀️';
+}
+
+// --- APP LOGIC ---
+function showMenu() {
+    switchView('menu-view');
+    document.getElementById('search').value = '';
+}
+
+function startQuiz(mode) {
+    score = 0;
+    currentQIndex = 0;
+    activeQuizData = mode === 'random' ? shuffleArray(originalDb) : [...originalDb];
+    
+    document.getElementById('q-total').innerText = activeQuizData.length;
+    document.getElementById('score-display').innerText = 0;
+    
+    switchView('quiz-view');
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentQIndex >= activeQuizData.length) {
+        finishQuiz();
+        return;
+    }
+
+    const data = activeQuizData[currentQIndex];
+    document.getElementById('q-current').innerText = currentQIndex + 1;
+    
+    const container = document.getElementById("quiz-container");
+    container.innerHTML = `
+        <div class="question-card">
+            <div class="question-text">${data[0]}</div>
+            <div class="options">
+                ${data[1].map((opt, index) => 
+                    `<button class="opt-btn" onclick="checkAnswer(this, ${index}, ${data[2]})">${String.fromCharCode(97+index)}) ${opt}</button>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function checkAnswer(btn, index, correctIndex) {
+    const buttons = document.querySelectorAll(".opt-btn");
+    buttons.forEach(b => b.disabled = true);
+    
+    if (index === correctIndex) {
+        btn.classList.add("correct");
+        score++;
+        document.getElementById('score-display').innerText = score;
+    } else {
+        btn.classList.add("wrong");
+        buttons[correctIndex].classList.add("correct");
+    }
+
+    setTimeout(() => {
+        currentQIndex++;
+        loadQuestion();
+    }, 1200);
+}
+
+function finishQuiz() {
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('final-total').innerText = activeQuizData.length;
+    switchView('result-view');
+}
+
+function showStudyList() {
+    const listContainer = document.getElementById('study-content');
+    listContainer.innerHTML = originalDb.map(item => `
+        <div class="study-item" data-text="${item[0].toLowerCase()}">
+            <div class="study-q">${item[0]}</div>
+            <div class="study-a">✅ ${item[1][item[2]]}</div>
+        </div>
+    `).join('');
+    switchView('list-view');
+}
+
+function filterList() {
+    const filter = document.getElementById('search').value.toLowerCase();
+    const items = document.querySelectorAll('.study-item');
+    items.forEach(item => {
+        const text = item.getAttribute('data-text');
+        item.style.display = text.includes(filter) ? 'block' : 'none';
+    });
+}
+</script>
+
+</body>
+</html>
